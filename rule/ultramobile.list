@@ -1,0 +1,33 @@
+# NAME: UltraMobile
+# UPDATED: 2026-01-15 10:55:00
+# DOMAIN: 9
+# DOMAIN-SUFFIX: 5
+# DOMAIN-KEYWORD: 2
+# IP-CIDR: 3
+# TOTAL: 19
+
+# --- 域名部分 (Domains) ---
+DOMAIN-SUFFIX,ultramobile.com
+DOMAIN-SUFFIX,ultra.me
+DOMAIN-SUFFIX,t-mobile.com
+DOMAIN-SUFFIX,tmocache.com
+DOMAIN-SUFFIX,3gppnetwork.org
+DOMAIN-KEYWORD,ultramobile
+DOMAIN-KEYWORD,t-mobile
+
+# ePDG & Messaging 核心域名
+DOMAIN,eas3.msg.t-mobile.com
+DOMAIN,mascns.t-mobile.com
+DOMAIN,ns.sipgeo.t-mobile.com
+DOMAIN,crl.t-mobile.com
+DOMAIN,epdg.epc.mnc240.mcc310.pub.3gppnetwork.org
+DOMAIN,epdg.epc.mnc260.mcc310.pub.3gppnetwork.org
+DOMAIN,ss.epdg.epc.mnc260.mcc310.pub.3gppnetwork.org
+DOMAIN,ss.epdg.epc.geo.mnc260.mcc310.pub.3gppnetwork.org
+DOMAIN,depdg.epc.mnc260.mcc310.pub.3gppnetwork.org
+
+# --- IP 地址段部分 (IP-CIDR) ---
+# T-Mobile Wi-Fi Calling 核心验证与通信网段
+IP-CIDR,208.54.0.0/16,no-resolve
+IP-CIDR,66.94.0.0/19,no-resolve
+IP-CIDR,206.29.177.36/32,no-resolve
