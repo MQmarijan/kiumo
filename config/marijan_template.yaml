@@ -1,15 +1,15 @@
 # 注意规则在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
 # 机场订阅
 proxy-providers:
-  机场名称:
-    url: "在此输入你的订阅链接"
+  airport:
+    url: "在此处输入你的机场订阅链接"
     type: http
     interval: 86400
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
       interval: 300
-    proxy: 直接连接
+    proxy: 大陆直连
 
 # 节点信息
 proxies:
@@ -96,75 +96,75 @@ dns:
 # 出站策略
 # 注意锚点必须放在引用的上方，可以集中把锚点全部放yaml的顶部。
 # 锚点
-pr: &pr {type: select, proxies: [台湾自动, 香港自动, 日本自动, 狮城自动, 美国自动, 自动选择, 手动选择, DIRECT]}
+pr: &pr {type: select, proxies: [台湾自动, 香港自动, 日本自动, 狮城自动, 美国自动, 下载专用, DIRECT]}
 # 策略组
 proxy-groups:
   #普通策略组
-  - {name: Microsoft, type: select, proxies: [美国自动, 台湾自动, 香港自动, 日本自动, 狮城自动, 自动选择, 手动选择, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png}
-  - {name: Google, type: select, proxies: [日本自动, 台湾自动, 香港自动, 狮城自动, 美国自动, 自动选择, 手动选择, DIRECT], icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/04ProxySoft/google(2).png}
-  - {name: Apple, type: select, proxies: [美国自动, 日本自动, 香港自动, 台湾自动, 狮城自动, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png}
-  - {name: AI枢纽, type: select, proxies: [美国自动, 日本自动, 狮城自动], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png}
-  - {name: YouTube, type: select, proxies: [Google, 香港自动, 台湾自动, 日本自动, 狮城自动, 美国自动], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png}
-  - {name: Spotify, type: select, proxies: [台湾自动, 美国自动, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Spotify.png}
-  - {name: Disney+, type: select, proxies: [日本自动, 香港自动, 台湾自动, 狮城自动, 手动选择], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Disney.png}
-  - {name: NETFLIX, type: select, proxies: [日本自动, 香港自动, 台湾自动, 狮城自动, 手动选择], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png}
-  - {name: 自动选择, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "^((?!(直接连接)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png}
-  - {name: Speedtest, !!merge <<: *pr, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Speedtest.png}
-  - {name: 游戏平台, !!merge <<: *pr, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png}
-  - {name: 直接连接, type: select, proxies: [DIRECT, 手动选择], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png}
-  - {name: 漏网之鱼, !!merge <<: *pr, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png}
-  - {name: 港台番剧, type: select, proxies: [直接连接, 香港自动, 台湾自动, 日本自动], icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/03CNSoft/bilibili(1).png}
-  - {name: 抖快书定位, type: select, proxies: [直接连接, 香港自动, 台湾自动, 日本自动, 狮城自动, 美国自动, 手动选择], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Null_Nation.png}
+  - {name: 苹果服务, type: select, proxies: [美国自动, 日本自动, 台湾自动, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png}
+  - {name: 谷歌服务, type: select, proxies: [日本自动, 台湾自动, 狮城自动, 美国自动, 下载专用, DIRECT], icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/04ProxySoft/google(2).png}
+  - {name: 微软服务, type: select, proxies: [美国自动, 台湾自动, 香港自动, 日本自动, 狮城自动, 下载专用, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png}
+  - {name: 全球影音, !!merge <<: *pr, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png}
+  - {name: 人工智能, type: select, proxies: [美国自动, 日本自动, 狮城自动, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png}
+  - {name: 社交定位, type: select, proxies: [大陆直连, 香港自动, 台湾自动, 日本自动, 狮城自动, 美国自动, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Null_Nation.png}
+  - {name: 全球代理, !!merge <<: *pr, include-all: true, filter: "^((?!(流量|到期|过滤)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png}
+  - {name: 国内媒体, type: select, proxies: [DIRECT, 香港自动, 台湾自动, 日本自动, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/DomesticMedia.png}
+  - {name: 大陆直连, type: select, proxies: [DIRECT, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png}
 
-  #地区分组
+  #地区分组无需手动点击，仅供其他组引用
   - {name: 香港自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇭🇰|港|HK|(?i)Hong))^((?!(台|日|韩|新|深|美)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png}
   - {name: 台湾自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇹🇼|台|TW|新北|彰化|Taiwan))^((?!(港|美|日|韩|新)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Taiwan.png}
   - {name: 日本自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇯🇵|日|JP|(?i)Japan))^((?!(港|台|韩|新|美)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png}
   - {name: 狮城自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇸🇬|新加坡|SG|坡|狮城|Singapore))^((?!(港|美|日|韩|台)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png}
   - {name: 美国自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇺🇸|美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png}
-  
+
   # 手动选择（包含所有策略组和所有机场的单个节点）
-  - {name: 手动选择, type: select, proxies: [日本自动, 狮城自动, 香港自动, 台湾自动, 美国自动, 自动选择, DIRECT], include-all: true, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png}
+  - {name: 下载专用, type: select, include-all: true, filter: "^((?!(大陆直连|流量|到期|过滤)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Download.png}
+
 
 rules:
   #01. 本地网络优先
   - RULE-SET,private_domain,DIRECT
 
-  #02. 强效匹配前置
-  #港台番剧
-  - DOMAIN-KEYWORD,bili,港台番剧
-  - DOMAIN-SUFFIX,hdslb.com,港台番剧
-  - RULE-SET,bilibili_domain,港台番剧
-  #抖快书
-  - RULE-SET,douyin_domain,抖快书定位
-  - RULE-SET,kuaishou_domain,抖快书定位
-  - RULE-SET,xiaohongshu_domain,抖快书定位
+  #02. 强效匹配
+  #流媒体(番剧)
+  - DOMAIN-KEYWORD,bili,国内媒体
+  - DOMAIN-SUFFIX,hdslb.com,国内媒体
+  - RULE-SET,bilibili_domain,国内媒体
+  #社交定位(抖快书)
+  - RULE-SET,douyin_domain,社交定位
+  - RULE-SET,kuaishou_domain,社交定位
+  - RULE-SET,xiaohongshu_domain,社交定位
 
-  #03. 自定义域名规则
+  #04. 自定义域名规则
   #Dia
   - DOMAIN,api.segment.io,美国自动
   - DOMAIN-SUFFIX,launchdarkly.com,美国自动
   - DOMAIN-SUFFIX,diabrowser.engineering,美国自动
+
+  #Apple Intelligence
+  #- DOMAIN-SUFFIX,apple-relay.apple.com,美国自动
+  #- DOMAIN-SUFFIX,apple-relay.cloudflare.com,美国自动
+  #- DOMAIN-KEYWORD,apple-relay,美国自动
   #Midjourney
-  - DOMAIN-SUFFIX,midjourney.com,AI枢纽
+  - DOMAIN-SUFFIX,midjourney.com,人工智能
   #martini
   - DOMAIN-SUFFIX,martini.art,DIRECT
 
-  #04. 分类分流规则
+  #05. 使用分类规则
   #国内应用
   - RULE-SET,115_domain,DIRECT
-  - RULE-SET,okx_domain,直接连接
-  - RULE-SET,XPTV_domain,直接连接
+  - RULE-SET,okx_domain,大陆直连
+  - RULE-SET,XPTV_domain,大陆直连
   #Apple
   - RULE-SET,apple-intelligence_domain,美国自动
   - RULE-SET,applecn_domain,DIRECT
-  - RULE-SET,apple_domain,Apple
+  - RULE-SET,apple_domain,苹果服务
   #Microsoft
-  - RULE-SET,onedrive_domain,Microsoft
-  - RULE-SET,microsoft_domain,Microsoft
-  - RULE-SET,copilot_domain,Microsoft
+  - RULE-SET,onedrive_domain,微软服务
+  - RULE-SET,microsoft_domain,微软服务
+  - RULE-SET,copilot_domain,微软服务
   #Spotify
-  - RULE-SET,spotify_domain,Spotify
+  - RULE-SET,spotify_domain,国内媒体
   # 屏蔽 Spotify 广告
   - DOMAIN-SUFFIX,googlesyndication.com,REJECT
   - DOMAIN-SUFFIX,doubleclick.net,REJECT
@@ -172,61 +172,62 @@ rules:
   - DOMAIN-KEYWORD,pagead,REJECT
   - DOMAIN-KEYWORD,googleads,REJECT
   # Spotify 核心服务直连
-  - DOMAIN-SUFFIX,spotify.com,Spotify
-  - DOMAIN-SUFFIX,spotifycdn.com,Spotify
-  - DOMAIN-SUFFIX,scdn.co,Spotify
+  - DOMAIN-SUFFIX,spotify.com,国内媒体
+  - DOMAIN-SUFFIX,spotifycdn.com,国内媒体
+  - DOMAIN-SUFFIX,scdn.co,国内媒体
   #Google
   - DOMAIN-KEYWORD,voice,美国自动
   - RULE-SET,GoogleVoice_domain,美国自动
-  - RULE-SET,youtube_domain,YouTube
-  - RULE-SET,google_domain,Google
-  - RULE-SET,google_ip,Google,no-resolve
+  - RULE-SET,youtube_domain,谷歌服务
+  - RULE-SET,google_domain,谷歌服务
+  - RULE-SET,google_ip,谷歌服务,no-resolve
   #Meta
   - RULE-SET,meta_domain,美国自动
   #Adobe
+  #- RULE-SET,adobePJ_domain,REJECT
   - RULE-SET,adobe_domain,美国自动
   #国外AI
-  - RULE-SET,openai_domain,AI枢纽
-  - RULE-SET,anthropic_domain,AI枢纽
-  - RULE-SET,perplexity_domain,AI枢纽
+  - RULE-SET,openai_domain,人工智能
+  - RULE-SET,anthropic_domain,人工智能
+  - RULE-SET,perplexity_domain,人工智能
   #国外影视
-  - RULE-SET,disney+_domain,Disney+
-  - RULE-SET,netflix_domain,NETFLIX
-  - RULE-SET,netflix_ip,NETFLIX,no-resolve
+  - RULE-SET,disney+_domain,全球影音
+  - RULE-SET,netflix_domain,全球影音
+  - RULE-SET,netflix_ip,全球影音,no-resolve
   #国外合集
-  - RULE-SET,tiktok_domain,日本自动
-  - RULE-SET,speedtest_domain,Speedtest
+  - RULE-SET,tiktok_domain,社交定位
+  - RULE-SET,speedtest_domain,全球代理
   - RULE-SET,telegram_domain,日本自动
   - RULE-SET,telegram_ip,日本自动,no-resolve
   - RULE-SET,paypal_domain,美国自动
   - RULE-SET,twitter_domain,美国自动
   - RULE-SET,ultramobile_domain,美国自动
-  - RULE-SET,discord_domain,日本自动
+  - RULE-SET,discord_domain,社交定位
   - RULE-SET,civitai_domain,台湾自动
   - RULE-SET,duolingo_domain,台湾自动
   - RULE-SET,pinterest_domain,台湾自动
   - RULE-SET,pikpak_domain,狮城自动
   - RULE-SET,notion_domain,日本自动
   - RULE-SET,figma_domain,日本自动
+  - RULE-SET,wise_domain,全球代理
   #各大游戏平台
-  - RULE-SET,rockstar_domain,游戏平台
-  - RULE-SET,epicgames_domain,游戏平台
-  - RULE-SET,origin_domain,游戏平台
-  - RULE-SET,sony_domain,游戏平台
-  - RULE-SET,steam_domain,游戏平台
-  - RULE-SET,nintendo_domain,游戏平台
+  - RULE-SET,rockstar_domain,全球代理
+  - RULE-SET,epicgames_domain,全球代理
+  - RULE-SET,origin_domain,全球代理
+  - RULE-SET,sony_domain,全球代理
+  - RULE-SET,steam_domain,全球代理
+  - RULE-SET,nintendo_domain,全球代理
 
-  #05. 中国服务补遗 (在所有特定分类之后判定)
-  - RULE-SET,cn_domain,直接连接
-  - RULE-SET,cn_ip,直接连接
+  #06. 中国服务补遗 (在所有特定分类之后判定)
+  - RULE-SET,cn_domain,大陆直连
+  - RULE-SET,cn_ip,大陆直连
 
-  #06. 地理位置判断 (兜底国外流量)
-  - RULE-SET,geolocation-!cn,手动选择
+  #07. 地理位置判断（兜底国外流量）
+  - RULE-SET,geolocation-!cn,全球代理
 
   #07. 最终兜底
-  - MATCH,漏网之鱼
+  - MATCH,全球代理
 
-  
 rule-anchor:
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
   domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
@@ -245,6 +246,7 @@ rule-providers:
   cn_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"}
   
   #04. 使用分类规则
+  #国内应用
   115_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/115.mrs"}
   okx_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/okx.mrs"}
   bilibili_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bilibili.mrs"}
@@ -291,6 +293,7 @@ rule-providers:
   pikpak_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/pikpak.mrs"}
   notion_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/notion.mrs"}
   figma_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/figma.mrs"}
+  wise_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/wise.mrs"}
   #各大游戏平台
   rockstar_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/rockstar.mrs"}
   epicgames_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/epicgames.mrs"}
@@ -299,5 +302,5 @@ rule-providers:
   steam_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.mrs"}
   nintendo_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/nintendo.mrs"}
   
-  #05. 地理位置判断
+  #05. 地理位置判断（兜底国外流量）
   geolocation-!cn: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"}
