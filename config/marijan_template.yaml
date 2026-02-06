@@ -1,8 +1,8 @@
 # 注意规则在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
 # 机场订阅
 proxy-providers:
-  provider1: # 替换为您自己的机场名称
-    url: "YOUR_SUBSCRIPTION_URL_HERE"
+  airport:
+    url: "在这里输入你的订阅链接"
     type: http
     interval: 86400
     health-check:
@@ -10,16 +10,6 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 300
     proxy: 大陆直连
-
-  provider2: # 替换为您自己的机场名称
-    url: "YOUR_SUBSCRIPTION_URL_HERE"
-    type: http
-    interval: 86400
-    health-check:
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 300
-    proxy: 日本自动
 
 # 节点信息
 proxies:
@@ -38,6 +28,7 @@ unified-delay: true
 tcp-concurrent: true
 log-level: warning
 find-process-mode: 'off'
+# interface-name: en0
 global-client-fingerprint: chrome
 keep-alive-idle: 600
 keep-alive-interval: 15
@@ -72,6 +63,7 @@ sniffer:
 # 入站  
 tun:
   enable: true
+  # system/gvisor/mixed
   stack: mixed
   dns-hijack: ["any:53", "tcp://any:53"]
   auto-route: true
@@ -104,19 +96,21 @@ dns:
     - 223.5.5.5
   proxy-server-nameserver:
     - https://223.5.5.5/dns-query
+  # namesever尽量用运营商提供的DNS
   nameserver:
     - 223.5.5.5
     - 119.29.29.29
  
 # 出站策略
+# 注意锚点必须放在引用的上方，可以集中把锚点全部放yaml的顶部。
 # 锚点
 pr: &pr {type: select, proxies: [台湾自动, 香港自动, 日本自动, 狮城自动, 美国自动, 下载专用, DIRECT]}
 # 策略组
 proxy-groups:
   #普通策略组
   - {name: 苹果服务, type: select, proxies: [美国自动, 日本自动, 台湾自动, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png}
-  - {name: 谷歌服务, type: select, proxies: [日本自动, 台湾自动, 狮城自动, 美国自动, 下载专用, DIRECT], icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/04ProxySoft/google(2).png}
-  - {name: 微软服务, type: select, proxies: [美国自动, 台湾自动, 香港自动, 日本自动, 狮城自动, 下载专用, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png}
+  - {name: 谷歌服务, type: select, proxies: [美国自动, 日本自动, 台湾自动, 狮城自动, 下载专用, DIRECT], icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/04ProxySoft/google(2).png}
+  - {name: 微软服务, type: select, proxies: [美国自动, 日本自动, 台湾自动, 狮城自动, 下载专用, 香港自动, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png}
   - {name: 全球影音, !!merge <<: *pr, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png}
   - {name: 人工智能, type: select, proxies: [美国自动, 日本自动, 狮城自动, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png}
   - {name: 社交定位, type: select, proxies: [大陆直连, 香港自动, 台湾自动, 日本自动, 狮城自动, 美国自动, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Null_Nation.png}
@@ -133,6 +127,7 @@ proxy-groups:
 
   # 手动选择（包含所有策略组和所有机场的单个节点）
   - {name: 下载专用, type: select, include-all: true, filter: "^((?!(大陆直连|流量|到期|过滤)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Download.png}
+
 
 rules:
   #01. 本地网络优先
@@ -154,6 +149,7 @@ rules:
   - DOMAIN,api.segment.io,美国自动
   - DOMAIN-SUFFIX,launchdarkly.com,美国自动
   - DOMAIN-SUFFIX,diabrowser.engineering,美国自动
+
   #Apple Intelligence
   #- DOMAIN-SUFFIX,apple-relay.apple.com,美国自动
   #- DOMAIN-SUFFIX,apple-relay.cloudflare.com,美国自动
@@ -167,7 +163,7 @@ rules:
   #国内应用
   - RULE-SET,115_domain,DIRECT
   - RULE-SET,okx_domain,大陆直连
-  - RULE-SET,XPTV_domain,大陆直连
+  - RULE-SET,XPTV_domain,国内媒体
   #国外AI
   - RULE-SET,openai_domain,人工智能
   - RULE-SET,anthropic_domain,人工智能
@@ -208,16 +204,16 @@ rules:
   - RULE-SET,netflix_domain,全球影音
   - RULE-SET,netflix_ip,全球影音,no-resolve
   #TMDB
-  - RULE-SET,tmdb_domain,日本自动
+  - RULE-SET,tmdb_domain,台湾自动
   #国外合集
-  - RULE-SET,tiktok_domain,社交定位
+  - RULE-SET,tiktok_domain,狮城自动
   - RULE-SET,speedtest_domain,全球代理
   - RULE-SET,telegram_domain,日本自动
   - RULE-SET,telegram_ip,日本自动,no-resolve
   - RULE-SET,paypal_domain,美国自动
   - RULE-SET,twitter_domain,美国自动
   - RULE-SET,ultramobile_domain,美国自动
-  - RULE-SET,discord_domain,社交定位
+  - RULE-SET,discord_domain,日本自动
   - RULE-SET,civitai_domain,台湾自动
   - RULE-SET,duolingo_domain,台湾自动
   - RULE-SET,pinterest_domain,台湾自动
