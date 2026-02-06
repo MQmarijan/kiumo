@@ -1,8 +1,10 @@
-# 注意规则在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
+# Mihomo 配置模板
+# 使用说明：将下方"机场订阅URL"替换为您自己的订阅链接即可使用
+
 # 机场订阅
 proxy-providers:
-  airport:
-    url: "在这里输入你的订阅链接"
+  机场1:
+    url: "机场订阅URL_1"
     type: http
     interval: 86400
     health-check:
@@ -10,6 +12,16 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 300
     proxy: 大陆直连
+
+  机场2:
+    url: "机场订阅URL_2"
+    type: http
+    interval: 86400
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+    proxy: 日本策略
 
 # 节点信息
 proxies:
@@ -94,36 +106,65 @@ dns:
     - "time.*.com"
   default-nameserver:
     - 223.5.5.5
+    - 119.29.29.29
   proxy-server-nameserver:
     - https://223.5.5.5/dns-query
-  # namesever尽量用运营商提供的DNS
+  direct-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://119.29.29.29/dns-query
+  # namesever 开启规则绑定与 ECS 地理位置精准解析
   nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
+    - https://8.8.8.8/dns-query#RULES&ecs=223.5.5.0/24
+    - https://1.1.1.1/dns-query#RULES&ecs=223.5.5.0/24
  
 # 出站策略
 # 注意锚点必须放在引用的上方，可以集中把锚点全部放yaml的顶部。
-# 锚点
-pr: &pr {type: select, proxies: [台湾自动, 香港自动, 日本自动, 狮城自动, 美国自动, 下载专用, DIRECT]}
+# 策略类型模板 - 定义不同策略组的基础配置
+BaseUT: &BaseUT {type: url-test, interval: 300, tolerance: 20, lazy: true, url: 'https://www.gstatic.com/generate_204', hidden: true}
+BaseCH: &BaseCH {type: load-balance, interval: 300, lazy: true, url: 'https://www.gstatic.com/generate_204', strategy: consistent-hashing, hidden: true}
+BaseCR: &BaseCR {type: load-balance, interval: 300, lazy: true, url: 'https://www.gstatic.com/generate_204', strategy: round-robin, hidden: true}
+# 选择策略锚点
+pr: &pr {type: select, proxies: [台湾策略, 香港策略, 日本策略, 狮城策略, 美国策略, 下载专用, DIRECT]}
 # 策略组
 proxy-groups:
   #普通策略组
-  - {name: 苹果服务, type: select, proxies: [美国自动, 日本自动, 台湾自动, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png}
-  - {name: 谷歌服务, type: select, proxies: [美国自动, 日本自动, 台湾自动, 狮城自动, 下载专用, DIRECT], icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/04ProxySoft/google(2).png}
-  - {name: 微软服务, type: select, proxies: [美国自动, 日本自动, 台湾自动, 狮城自动, 下载专用, 香港自动, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png}
-  - {name: 全球影音, !!merge <<: *pr, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png}
-  - {name: 人工智能, type: select, proxies: [美国自动, 日本自动, 狮城自动, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png}
-  - {name: 社交定位, type: select, proxies: [大陆直连, 香港自动, 台湾自动, 日本自动, 狮城自动, 美国自动, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Null_Nation.png}
+  - {name: 苹果服务, type: select, proxies: [美国策略, 日本策略, 台湾策略, 下载专用, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png}
+  - {name: 谷歌服务, type: select, proxies: [美国策略, 日本策略, 台湾策略, 狮城策略, 下载专用, DIRECT], icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/04ProxySoft/google(2).png}
+  - {name: 微软服务, type: select, proxies: [美国策略, 日本策略, 台湾策略, 狮城策略, 下载专用, 香港策略, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png}
+  - {name: 全球影音, type: select, proxies: [台湾策略, 香港策略, 日本策略, 狮城策略, 美国策略, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png}
+  - {name: 人工智能, type: select, proxies: [美国策略, 日本策略, 狮城策略, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png}
+  - {name: 社交定位, type: select, proxies: [大陆直连, 香港策略, 台湾策略, 日本策略, 狮城策略, 美国策略, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Null_Nation.png}
   - {name: 全球代理, !!merge <<: *pr, include-all: true, filter: "^((?!(流量|到期|过滤)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png}
-  - {name: 国内媒体, type: select, proxies: [DIRECT, 香港自动, 台湾自动, 日本自动, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/DomesticMedia.png}
+  - {name: 国内媒体, type: select, proxies: [DIRECT, 香港策略, 台湾策略, 日本策略, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/DomesticMedia.png}
   - {name: 大陆直连, type: select, proxies: [DIRECT, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png}
 
-  #地区分组无需手动点击，仅供其他组引用
-  - {name: 香港自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇭🇰|港|HK|(?i)Hong))^((?!(台|日|韩|新|深|美)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png}
-  - {name: 台湾自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇹🇼|台|TW|新北|彰化|Taiwan))^((?!(港|美|日|韩|新)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Taiwan.png}
-  - {name: 日本自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇯🇵|日|JP|(?i)Japan))^((?!(港|台|韩|新|美)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png}
-  - {name: 狮城自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇸🇬|新加坡|SG|坡|狮城|Singapore))^((?!(港|美|日|韩|台)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png}
-  - {name: 美国自动, type: url-test, include-all: true, tolerance: 20, interval: 300, filter: "(?=.*(🇺🇸|美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png}
+  #地区综合策略组（面板可见，可选择自动/散列/轮询/单节点）
+  - {name: 香港策略, type: select, proxies: [香港自动, 香港散列, 香港轮询], include-all: true, filter: "(?=.*(🇭🇰|港|HK|(?i)Hong))^((?!(台|日|韩|新|深|美)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png}
+  - {name: 台湾策略, type: select, proxies: [台湾自动, 台湾散列, 台湾轮询], include-all: true, filter: "(?=.*(🇹🇼|台|TW|新北|彰化|Taiwan))^((?!(港|美|日|韩|新)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Taiwan.png}
+  - {name: 日本策略, type: select, proxies: [日本自动, 日本散列, 日本轮询], include-all: true, filter: "(?=.*(🇯🇵|日|JP|(?i)Japan))^((?!(港|台|韩|新|美)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png}
+  - {name: 狮城策略, type: select, proxies: [狮城自动, 狮城散列, 狮城轮询], include-all: true, filter: "(?=.*(🇸🇬|新加坡|SG|坡|狮城|Singapore))^((?!(港|美|日|韩|台)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png}
+  - {name: 美国策略, type: select, proxies: [美国自动, 美国散列, 美国轮询], include-all: true, filter: "(?=.*(🇺🇸|美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png}
+
+  #自动测速组（隐藏，作为底层引擎）
+  - {name: 香港自动, <<: *BaseUT, include-all: true, filter: "(?=.*(🇭🇰|港|HK|(?i)Hong))^((?!(台|日|韩|新|深|美)).)*$"}
+  - {name: 台湾自动, <<: *BaseUT, include-all: true, filter: "(?=.*(🇹🇼|台|TW|新北|彰化|Taiwan))^((?!(港|美|日|韩|新)).)*$"}
+  - {name: 日本自动, <<: *BaseUT, include-all: true, filter: "(?=.*(🇯🇵|日|JP|(?i)Japan))^((?!(港|台|韩|新|美)).)*$"}
+  - {name: 狮城自动, <<: *BaseUT, include-all: true, filter: "(?=.*(🇸🇬|新加坡|SG|坡|狮城|Singapore))^((?!(港|美|日|韩|台)).)*$"}
+  - {name: 美国自动, <<: *BaseUT, include-all: true, filter: "(?=.*(🇺🇸|美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$"}
+
+  #负载均衡-散列（隐藏，目的地固定节点，推荐）
+  - {name: 香港散列, <<: *BaseCH, include-all: true, filter: "(?=.*(🇭🇰|港|HK|(?i)Hong))^((?!(台|日|韩|新|深|美)).)*$"}
+  - {name: 台湾散列, <<: *BaseCH, include-all: true, filter: "(?=.*(🇹🇼|台|TW|新北|彰化|Taiwan))^((?!(港|美|日|韩|新)).)*$"}
+  - {name: 日本散列, <<: *BaseCH, include-all: true, filter: "(?=.*(🇯🇵|日|JP|(?i)Japan))^((?!(港|台|韩|新|美)).)*$"}
+  - {name: 狮城散列, <<: *BaseCH, include-all: true, filter: "(?=.*(🇸🇬|新加坡|SG|坡|狮城|Singapore))^((?!(港|美|日|韩|台)).)*$"}
+  - {name: 美国散列, <<: *BaseCH, include-all: true, filter: "(?=.*(🇺🇸|美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$"}
+
+  #负载均衡-轮询（隐藏，适合大文件下载）
+  - {name: 香港轮询, <<: *BaseCR, include-all: true, filter: "(?=.*(🇭🇰|港|HK|(?i)Hong))^((?!(台|日|韩|新|深|美)).)*$"}
+  - {name: 台湾轮询, <<: *BaseCR, include-all: true, filter: "(?=.*(🇹🇼|台|TW|新北|彰化|Taiwan))^((?!(港|美|日|韩|新)).)*$"}
+  - {name: 日本轮询, <<: *BaseCR, include-all: true, filter: "(?=.*(🇯🇵|日|JP|(?i)Japan))^((?!(港|台|韩|新|美)).)*$"}
+  - {name: 狮城轮询, <<: *BaseCR, include-all: true, filter: "(?=.*(🇸🇬|新加坡|SG|坡|狮城|Singapore))^((?!(港|美|日|韩|台)).)*$"}
+  - {name: 美国轮询, <<: *BaseCR, include-all: true, filter: "(?=.*(🇺🇸|美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$"}
 
   # 手动选择（包含所有策略组和所有机场的单个节点）
   - {name: 下载专用, type: select, include-all: true, filter: "^((?!(大陆直连|流量|到期|过滤)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Download.png}
@@ -133,6 +174,9 @@ rules:
   #01. 本地网络优先
   - GEOIP,LAN,DIRECT,no-resolve
   - RULE-SET,private_domain,DIRECT
+
+  #01-1. 进阶安全防护 (屏蔽海外 QUIC 流量，强制回退 TCP 提升稳定性)
+  - AND,((DST-PORT,443),(NETWORK,UDP),(NOT,((GEOIP,CN)))),REJECT
 
   #02. 强效匹配
   #流媒体(番剧)
