@@ -1,10 +1,10 @@
 # Mihomo 配置模板
-# 使用说明：将下方"机场订阅URL"替换为您自己的订阅链接即可使用
+# 使用说明：将下方"机场订阅URL"替换为您自己的订阅链接即可使用，需要保留双引号“”
 
 # 机场订阅
 proxy-providers:
   机场1:
-    url: "机场订阅URL_1"
+    url: "机场订阅URL"
     type: http
     interval: 86400
     health-check:
@@ -185,6 +185,10 @@ rules:
   - DOMAIN-SUFFIX,diabrowser.engineering,美国自动
   #Midjourney
   - DOMAIN-SUFFIX,midjourney.com,人工智能
+  #公司网站
+  - DOMAIN-KEYWORD,wanheng.tech,DIRECT
+  - DOMAIN-KEYWORD,wanhengtech.com,DIRECT
+  - DOMAIN-KEYWORD,xinfutongtech.com,DIRECT
   #martini
   - DOMAIN-SUFFIX,martini.art,DIRECT
 
@@ -290,7 +294,7 @@ rule-providers:
   115_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/115.mrs"}
   okx_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/okx.mrs"}
   bilibili_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bilibili.mrs"}
-  XPTV_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/fangkuia/XPTV/main/X/clash.yaml", format: yaml}
+  XPTV_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/fangkuia/XPTV/refs/heads/main/X/clash.yaml", format: yaml}
   #Apple
   apple-intelligence_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/refs/heads/main/rule/apple-intelligence.list"}
   applecn_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs"}
@@ -298,7 +302,7 @@ rule-providers:
   #Microsoft
   onedrive_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs"}
   microsoft_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs"}
-  copilot_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Copilot/Copilot.list"}
+  copilot_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github-copilot.mrs"}
   #Spotify
   spotify_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/spotify.mrs"}
   #Google
