@@ -1,0 +1,23 @@
+# NAME: Perplexity
+# UPDATED: 2026-02-10 09:44:30
+# DOMAIN: 7
+# DOMAIN-SUFFIX: 3
+# TOTAL: 10
+
+# CDN Resources
+DOMAIN,pplx-res.cloudinary.com
+
+# Core Domains
+DOMAIN-SUFFIX,perplexity.ai
+DOMAIN-SUFFIX,perplexity.com
+DOMAIN-SUFFIX,pplx.ai
+
+# API & Developer Services
+DOMAIN,api.perplexity.ai
+DOMAIN,docs.perplexity.ai
+DOMAIN,labs.perplexity.ai
+DOMAIN,console.perplexity.ai
+
+# Community & Support
+DOMAIN,blog.perplexity.ai
+DOMAIN,community.perplexity.ai
