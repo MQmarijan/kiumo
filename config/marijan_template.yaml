@@ -1,10 +1,8 @@
-# Mihomo 配置模板
-# 使用说明：将下方"机场订阅URL"替换为您自己的订阅链接即可使用，需要保留双引号“”
-
+# 注意规则在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
 # 机场订阅
 proxy-providers:
-  机场1:
-    url: "机场订阅URL"
+  airport:
+    url: "此处粘贴机场订阅链接"
     type: http
     interval: 86400
     health-check:
@@ -44,7 +42,7 @@ external-controller: 0.0.0.0:9090
 secret: ""
 external-ui: ui
 external-ui-name: zashboard
-external-ui-url: "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
+external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
 
 # 嗅探
 sniffer:
@@ -148,7 +146,6 @@ proxy-groups:
   - {name: 日本散列, <<: *BaseCH, include-all: true, filter: "(?=.*(🇯🇵|日|JP|(?i)Japan))^((?!(港|台|韩|新|美|尼日利亚|(?i)Nigeria|NG|🇳🇬)).)*$"}
   - {name: 狮城散列, <<: *BaseCH, include-all: true, filter: "(?=.*(🇸🇬|新加坡|SG|坡|狮城|Singapore))^((?!(港|美|日|韩|台)).)*$"}
   - {name: 美国散列, <<: *BaseCH, include-all: true, filter: "(?=.*(🇺🇸|美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$"}
-
   #负载均衡-轮询（隐藏，适合大文件下载）
   - {name: 香港轮询, <<: *BaseCR, include-all: true, filter: "(?=.*(🇭🇰|港|HK|(?i)Hong))^((?!(台|日|韩|新|深|美)).)*$"}
   - {name: 台湾轮询, <<: *BaseCR, include-all: true, filter: "(?=.*(🇹🇼|台|TW|新北|彰化|Taiwan))^((?!(港|美|日|韩|新)).)*$"}
@@ -185,10 +182,6 @@ rules:
   - DOMAIN-SUFFIX,diabrowser.engineering,美国自动
   #Midjourney
   - DOMAIN-SUFFIX,midjourney.com,人工智能
-  #公司网站
-  - DOMAIN-KEYWORD,wanheng.tech,DIRECT
-  - DOMAIN-KEYWORD,wanhengtech.com,DIRECT
-  - DOMAIN-KEYWORD,xinfutongtech.com,DIRECT
   #martini
   - DOMAIN-SUFFIX,martini.art,DIRECT
 
