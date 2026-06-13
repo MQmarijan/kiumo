@@ -1,10 +1,14 @@
 # NAME: Bitget
-# UPDATED: 2026-06-13 18:12:00
-# DOMAIN: 0
+# UPDATED: 2026-06-13 20:47:17
+# DOMAIN: 4
 # DOMAIN-SUFFIX: 10
 # DOMAIN-KEYWORD: 2
-# TOTAL: 12
+# TOTAL: 16
 
+DOMAIN,log.noxiaohao.com
+DOMAIN,newshare.bwb.global
+DOMAIN,relay.walletconnect.org
+DOMAIN,static-web.jjdsn.vip
 DOMAIN-SUFFIX,bitget.com
 DOMAIN-SUFFIX,bitget.app
 DOMAIN-SUFFIX,bitget.io
