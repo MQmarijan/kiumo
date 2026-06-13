@@ -122,6 +122,7 @@ proxy-groups:
   - {name: 全球影音, type: select, proxies: [台湾策略, 香港策略, 日本策略, 狮城策略, 美国策略, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png}
   - {name: 人工智能, type: select, proxies: [美国策略, 日本策略, 狮城策略, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png}
   - {name: 社交定位, type: select, proxies: [大陆直连, 香港策略, 台湾策略, 日本策略, 狮城策略, 美国策略, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Null_Nation.png}
+  - {name: 数字金融, type: select, proxies: [台湾策略, 日本策略, 狮城策略, 香港策略, 美国策略, DIRECT], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ULB_1.png}
   - {name: 全球代理, !!merge <<: *pr, include-all: true, filter: "^((?!(流量|到期|过滤)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png}
   - {name: 国内媒体, type: select, proxies: [DIRECT, 香港策略, 台湾策略, 日本策略, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/DomesticMedia.png}
   - {name: 大陆直连, type: select, proxies: [DIRECT, 全球代理], icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png}
@@ -189,6 +190,9 @@ rules:
   #国内应用
   - RULE-SET,115_domain,DIRECT
   - RULE-SET,okx_domain,大陆直连
+  - RULE-SET,binance_domain,大陆直连
+  - RULE-SET,bitget_domain,数字金融
+  - RULE-SET,bybit_domain,数字金融
   - RULE-SET,XPTV_domain,国内媒体
   #国外AI
   - RULE-SET,openai_domain,人工智能
@@ -246,7 +250,9 @@ rules:
   - RULE-SET,pikpak_domain,狮城自动
   - RULE-SET,notion_domain,日本自动
   - RULE-SET,figma_domain,日本自动
-  - RULE-SET,wise_domain,全球代理
+  - RULE-SET,wise_domain,大陆直连
+  - RULE-SET,neverless_domain,数字金融
+  - RULE-SET,n26_domain,数字金融
   #各大游戏平台
   - RULE-SET,rockstar_domain,全球代理
   - RULE-SET,epicgames_domain,全球代理
@@ -286,6 +292,9 @@ rule-providers:
   #国内应用
   115_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/115.mrs"}
   okx_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/okx.mrs"}
+  binance_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/binance.mrs"}
+  bitget_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/main/rule/bitget.list"}
+  bybit_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bybit.mrs"}
   bilibili_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bilibili.mrs"}
   XPTV_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/fangkuia/XPTV/refs/heads/main/X/clash.yaml", format: yaml}
   #Apple
@@ -333,6 +342,8 @@ rule-providers:
   notion_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/notion.mrs"}
   figma_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/figma.mrs"}
   wise_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/wise.mrs"}
+  neverless_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/main/rule/neverless.list"}
+  n26_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/main/rule/n26.list"}
   #各大游戏平台
   rockstar_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/rockstar.mrs"}
   epicgames_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/epicgames.mrs"}
