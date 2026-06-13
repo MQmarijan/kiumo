@@ -1,11 +1,13 @@
 # NAME: N26
-# UPDATED: 2026-06-13 20:47:17
-# DOMAIN: 1
+# UPDATED: 2026-06-13 21:11:49
+# DOMAIN: 3
 # DOMAIN-SUFFIX: 4
 # DOMAIN-KEYWORD: 2
-# TOTAL: 7
+# TOTAL: 9
 
 DOMAIN,beyondwickedmapping.org
+DOMAIN,cdn.braze.eu
+DOMAIN,sessions.bugsnag.com
 DOMAIN-SUFFIX,n26.com
 DOMAIN-SUFFIX,number26.de
 DOMAIN-SUFFIX,tech26.de
