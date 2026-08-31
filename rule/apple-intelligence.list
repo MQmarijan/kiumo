@@ -1,12 +1,13 @@
 # NAME: Apple-Intelligence
-# UPDATED: 2026-07-07 23:02:30
-# TOTAL: 18
+# UPDATED: 2026-08-31 23:16:35
+# TOTAL: 19
 
 DOMAIN,guzzoni.apple.com
 DOMAIN,mask-api.fe.apple-dns.net
 DOMAIN,mask-api.icloud.com
 DOMAIN,mask-t.apple-dns.net
 DOMAIN,mask.apple-dns.net
+DOMAIN-KEYWORD,siri
 DOMAIN-SUFFIX,apple-relay.akamaized.net
 DOMAIN-SUFFIX,apple-relay.apple.com
 DOMAIN-SUFFIX,apple-relay.cloudflare.com
