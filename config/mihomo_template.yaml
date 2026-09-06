@@ -1,0 +1,403 @@
+# 注意规则在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
+# 机场订阅
+proxy-providers:
+  airport:
+    url: "此处粘贴机场订阅链接"
+    type: http
+    interval: 86400
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+    proxy: 大陆直连
+
+# 节点信息
+proxies:
+  # - {name: DIRECT, type: direct}
+
+# 全局配置 
+port: 7890
+socks-port: 7891
+redir-port: 7892
+mixed-port: 7893
+tproxy-port: 7894
+allow-lan: true
+bind-address: "*"
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+log-level: warning
+find-process-mode: 'always'
+# interface-name: en0
+global-client-fingerprint: chrome
+keep-alive-idle: 600
+keep-alive-interval: 15
+disable-keep-alive: false
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# 控制面板
+external-controller: 0.0.0.0:9090
+secret: ""
+external-ui: ui
+external-ui-name: zashboard
+external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
+
+# 嗅探
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  force-domain:
+    - "+.v2ex.com"
+  skip-domain:
+    - "+.baidu.com"
+
+# 入站  
+tun:
+  enable: true
+  # system/gvisor/mixed
+  stack: mixed
+  dns-hijack: ["any:53", "tcp://any:53"]
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+
+# DNS模块
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 28.0.0.1/8
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "rule-set:private_domain"
+    - "rule-set:cn_domain"
+    - "rule-set:tailscale_domain"
+    - "localhost"
+    - "+.lan"
+    - "+.local"
+    - "+.home.arpa"
+    - "miwifi.com"
+    - "router.asus.com"
+    - "tplinkwifi.net"
+    - "gpon.iedu.com"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "time.*.com"
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+  direct-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://119.29.29.29/dns-query
+  # namesever 开启规则绑定与 ECS 地理位置精准解析
+  nameserver:
+    - https://223.5.5.5/dns-query#RULES
+    - https://119.29.29.29/dns-query#RULES
+    - https://8.8.8.8/dns-query#RULES&ecs=223.5.5.0/24
+    - https://1.1.1.1/dns-query#RULES&ecs=223.5.5.0/24
+ 
+# 出站策略
+# 注意锚点必须放在引用的上方，可以集中把锚点全部放yaml的顶部。
+# ================= 1. 公共别名与正则锚点 =================
+# 地区正则过滤器锚点
+filter-hk: &filter-hk "(?=.*(🇭🇰|港|HK|(?i)Hong))^((?!(台湾|TW|日本|JP|Japan|🇯🇵|韩国|KR|Korea|🇰🇷|新加坡|坡|SG|Singapore|🇸🇬|深圳|美国|US|America|🇺🇸|公告)).)*$"
+filter-tw: &filter-tw "(?=.*(🇹🇼|台|TW|新北|彰化|Taiwan))^((?!(香港|HK|Hong|🇭🇰|美国|US|America|🇺🇸|日本|JP|Japan|🇯🇵|韩国|KR|Korea|🇰🇷|新加坡|坡|SG|Singapore|🇸🇬|公告)).)*$"
+filter-jp: &filter-jp "(?=.*(🇯🇵|日|JP|(?i)Japan))^((?!(香港|HK|Hong|🇭🇰|台湾|TW|Taiwan|🇹🇼|韩国|KR|Korea|🇰🇷|新加坡|坡|SG|Singapore|🇸🇬|美国|US|America|🇺🇸|尼日利亚|(?i)Nigeria|🇳🇬|加拿大|(?i)Canada|🇨🇦|多伦多|公告)).)*$"
+filter-sg: &filter-sg "(?=.*(🇸🇬|新加坡|SG|坡|狮城|Singapore))^((?!(香港|HK|Hong|🇭🇰|美国|US|America|🇺🇸|日本|JP|Japan|🇯🇵|韩国|KR|Korea|🇰🇷|台湾|TW|Taiwan|🇹🇼|马来西亚|(?i)Malaysia|MY|吉隆坡|公告)).)*$"
+filter-us: &filter-us "(?=.*(🇺🇸|美|US|(?i)States|America))^((?!(香港|HK|Hong|🇭🇰|台湾|TW|Taiwan|🇹🇼|日本|JP|Japan|🇯🇵|韩国|KR|Korea|🇰🇷|新加坡|坡|SG|Singapore|🇸🇬|多哥|(?i)Togo|TG|洛美|公告)).)*$"
+
+# 常用出站优先级列表别名
+x-apple-first:  &apple-first  [美国策略, 日本策略, 台湾策略, 下载专用, DIRECT]
+x-us-first:     &us-first     [美国策略, 日本策略, 台湾策略, 狮城策略, 下载专用, DIRECT]
+x-ms-first:     &ms-first     [美国策略, 日本策略, 台湾策略, 狮城策略, 下载专用, 香港策略, DIRECT]
+x-tw-first:     &tw-first     [台湾策略, 香港策略, 日本策略, 狮城策略, 美国策略, DIRECT]
+x-ai-first:     &ai-first     [美国策略, 日本策略, 狮城策略, 全球代理]
+x-social-first: &social-first [大陆直连, 香港策略, 台湾策略, 日本策略, 狮城策略, 美国策略, 全球代理]
+x-direct-first: &direct-first [DIRECT, 香港策略, 台湾策略, 日本策略, 全球代理]
+x-direct-only:  &direct-only  [DIRECT, 全球代理]
+
+# 策略类型模板 - 定义不同策略组的基础配置
+BaseUT: &BaseUT {type: url-test, interval: 300, tolerance: 20, lazy: true, url: 'https://www.gstatic.com/generate_204', hidden: true}
+BaseCH: &BaseCH {type: load-balance, interval: 300, lazy: true, url: 'https://www.gstatic.com/generate_204', strategy: consistent-hashing, hidden: true}
+BaseCR: &BaseCR {type: load-balance, interval: 300, lazy: true, url: 'https://www.gstatic.com/generate_204', strategy: round-robin, hidden: true}
+
+# 选择策略锚点
+pr: &pr {type: select, proxies: [台湾策略, 香港策略, 日本策略, 狮城策略, 美国策略, 下载专用, DIRECT]}
+
+# 策略组
+proxy-groups:
+  #普通策略组
+  - {name: 苹果服务, type: select, proxies: *apple-first, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png}
+  - {name: 谷歌服务, type: select, proxies: *us-first, icon: https://raw.githubusercontent.com/lige47/QuanX-icon-rule/main/icon/04ProxySoft/google(2).png}
+  - {name: 微软服务, type: select, proxies: *ms-first, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png}
+  - {name: 全球影音, type: select, proxies: *tw-first, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png}
+  - {name: 人工智能, type: select, proxies: *ai-first, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png}
+  - {name: 社交定位, type: select, proxies: *social-first, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Null_Nation.png}
+  - {name: 数字金融, type: select, proxies: *tw-first, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ULB_1.png}
+  - {name: 全球代理, !!merge <<: *pr, include-all: true, filter: "^((?!(流量|到期|过滤|公告)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png}
+  - {name: 国内媒体, type: select, proxies: *direct-first, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/DomesticMedia.png}
+  - {name: 大陆直连, type: select, proxies: *direct-only, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png}
+
+  #地区综合策略组（面板可见，可选择自动/散列/轮询/单节点）
+  - {name: 香港策略, type: select, proxies: [香港自动, 香港散列, 香港轮询], include-all: true, filter: *filter-hk, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png}
+  - {name: 台湾策略, type: select, proxies: [台湾自动, 台湾散列, 台湾轮询], include-all: true, filter: *filter-tw, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Taiwan.png}
+  - {name: 日本策略, type: select, proxies: [日本自动, 日本散列, 日本轮询], include-all: true, filter: *filter-jp, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png}
+  - {name: 狮城策略, type: select, proxies: [狮城自动, 狮城散列, 狮城轮询], include-all: true, filter: *filter-sg, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png}
+  - {name: 美国策略, type: select, proxies: [美国自动, 美国散列, 美国轮询], include-all: true, filter: *filter-us, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png}
+
+  #自动测速组（隐藏，作为底层引擎）
+  - {name: 香港自动, <<: *BaseUT, include-all: true, filter: *filter-hk}
+  - {name: 台湾自动, <<: *BaseUT, include-all: true, filter: *filter-tw}
+  - {name: 日本自动, <<: *BaseUT, include-all: true, filter: *filter-jp}
+  - {name: 狮城自动, <<: *BaseUT, include-all: true, filter: *filter-sg}
+  - {name: 美国自动, <<: *BaseUT, include-all: true, filter: *filter-us}
+
+  #负载均衡-散列（隐藏，目的地固定节点，推荐）
+  - {name: 香港散列, <<: *BaseCH, include-all: true, filter: *filter-hk}
+  - {name: 台湾散列, <<: *BaseCH, include-all: true, filter: *filter-tw}
+  - {name: 日本散列, <<: *BaseCH, include-all: true, filter: *filter-jp}
+  - {name: 狮城散列, <<: *BaseCH, include-all: true, filter: *filter-sg}
+  - {name: 美国散列, <<: *BaseCH, include-all: true, filter: *filter-us}
+
+  #负载均衡-轮询（隐藏，适合大文件下载）
+  - {name: 香港轮询, <<: *BaseCR, include-all: true, filter: *filter-hk}
+  - {name: 台湾轮询, <<: *BaseCR, include-all: true, filter: *filter-tw}
+  - {name: 日本轮询, <<: *BaseCR, include-all: true, filter: *filter-jp}
+  - {name: 狮城轮询, <<: *BaseCR, include-all: true, filter: *filter-sg}
+  - {name: 美国轮询, <<: *BaseCR, include-all: true, filter: *filter-us}
+
+  # 手动选择（包含所有策略组和所有机场 of 单个节点）
+  - {name: 下载专用, type: select, include-all: true, filter: "^((?!(大陆直连|流量|到期|过滤|公告)).)*$", icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Download.png}
+
+
+rules:
+  #00. 常见下载/同步软件进程直连 (规避 P2P 消耗代理流量)
+  - PROCESS-NAME,qBittorrent,DIRECT
+  - PROCESS-NAME,Transmission,DIRECT
+  - PROCESS-NAME,Thunder,DIRECT
+  - PROCESS-NAME,DownloadService,DIRECT
+  - PROCESS-NAME,aria2c,DIRECT
+  - PROCESS-NAME,fdm,DIRECT
+
+  #00-1. 游戏下载 CDN 直连
+  - DOMAIN-SUFFIX,steamcontent.com,DIRECT
+  - DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT
+
+  #01. 本地网络优先
+  - GEOIP,LAN,DIRECT,no-resolve
+  - RULE-SET,private_domain,DIRECT
+  - RULE-SET,tailscale_domain,DIRECT
+  - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+  - IP-CIDR6,fd7a:115c:a1e0::/48,DIRECT,no-resolve
+
+  #01-1. 进阶安全防护 (屏蔽海外 QUIC 流量，强制回退 TCP 提升稳定性)
+  - AND,((DST-PORT,443),(NETWORK,UDP),(NOT,((GEOIP,CN,no-resolve)))),REJECT
+
+  #02. 强效匹配
+  #流媒体(番剧)
+  - DOMAIN-KEYWORD,bili,国内媒体
+  - DOMAIN-SUFFIX,hdslb.com,国内媒体
+  - RULE-SET,bilibili_domain,国内媒体
+  #社交定位(抖快书)
+  - RULE-SET,douyin_domain,社交定位
+  - RULE-SET,kuaishou_domain,社交定位
+  - RULE-SET,xiaohongshu_domain,社交定位
+
+  #04. 自定义域名规则
+  #Dia
+  - DOMAIN,api.segment.io,美国策略
+  - DOMAIN-SUFFIX,launchdarkly.com,美国策略
+  - DOMAIN-SUFFIX,diabrowser.engineering,美国策略
+  #Midjourney
+  - DOMAIN-SUFFIX,midjourney.com,人工智能
+  #martini
+  - DOMAIN-SUFFIX,martini.art,DIRECT
+
+  #05. 使用分类规则
+  #Apple
+  - RULE-SET,apple-intelligence_domain,美国策略
+  - RULE-SET,applecn_domain,苹果服务
+  - RULE-SET,apple_domain,苹果服务
+  #国内应用
+  - RULE-SET,115_domain,DIRECT
+  - RULE-SET,okx_domain,数字金融
+  - RULE-SET,binance_domain,数字金融
+  - RULE-SET,bitget_domain,数字金融
+  - RULE-SET,bybit_domain,数字金融
+  - RULE-SET,sumsub_domain,数字金融
+  - RULE-SET,jianguoyun_domain,DIRECT
+  - RULE-SET,XPTV_domain,国内媒体
+  #国外AI
+  - RULE-SET,openai_domain,人工智能
+  - RULE-SET,anthropic_domain,人工智能
+  - RULE-SET,perplexity_domain,人工智能
+  #Microsoft
+  - RULE-SET,onedrive_domain,微软服务
+  - RULE-SET,microsoft_domain,微软服务
+  - RULE-SET,copilot_domain,微软服务
+  #Spotify
+  - RULE-SET,spotify_domain,国内媒体
+  # 屏蔽 Spotify 广告
+  - DOMAIN-SUFFIX,googlesyndication.com,REJECT
+  - DOMAIN-SUFFIX,doubleclick.net,REJECT
+  - DOMAIN-SUFFIX,2mdn.net,REJECT
+  - DOMAIN-KEYWORD,pagead,REJECT
+  - DOMAIN-KEYWORD,googleads,REJECT
+  # Spotify 核心服务直连
+  - DOMAIN-SUFFIX,spotify.com,国内媒体
+  - DOMAIN-SUFFIX,spotifycdn.com,国内媒体
+  - DOMAIN-SUFFIX,scdn.co,国内媒体
+  #Google
+  - DOMAIN-KEYWORD,voice,美国策略
+  - RULE-SET,GoogleVoice_domain,美国策略
+  - RULE-SET,youtube_domain,谷歌服务
+  - RULE-SET,google_domain,谷歌服务
+  - RULE-SET,google_ip,谷歌服务,no-resolve
+  #Meta
+  - RULE-SET,meta_domain,美国策略
+  #Adobe
+  #- RULE-SET,adobePJ_domain,REJECT
+  - RULE-SET,adobe_domain,美国策略
+  #国外影视
+  - RULE-SET,disney+_domain,全球影音
+  - RULE-SET,netflix_domain,全球影音
+  - RULE-SET,netflix_ip,全球影音,no-resolve
+  #TMDB
+  - RULE-SET,tmdb_domain,台湾策略
+  #国外合集
+  - RULE-SET,tiktok_domain,狮城策略
+  - RULE-SET,speedtest_domain,全球代理
+  - RULE-SET,telegram_domain,日本策略
+  - RULE-SET,telegram_ip,日本策略,no-resolve
+  - RULE-SET,paypal_domain,美国策略
+  - RULE-SET,x_domain,美国策略
+  - RULE-SET,ultramobile_domain,美国策略
+  - RULE-SET,discord_domain,日本策略
+  - RULE-SET,civitai_domain,台湾策略
+  - RULE-SET,duolingo_domain,台湾策略
+  - RULE-SET,pinterest_domain,台湾策略
+  - RULE-SET,pikpak_domain,狮城策略
+  - RULE-SET,notion_domain,日本策略
+  - RULE-SET,figma_domain,日本策略
+  - RULE-SET,wise_domain,大陆直连
+  - RULE-SET,neverless_domain,数字金融
+  - RULE-SET,n26_domain,数字金融
+  - RULE-SET,schwab_domain,数字金融
+  #各大游戏平台
+  - RULE-SET,rockstar_domain,全球代理
+  - RULE-SET,epicgames_domain,全球代理
+  - RULE-SET,origin_domain,全球代理
+  - RULE-SET,sony_domain,全球代理
+  - RULE-SET,steam_domain,全球代理
+  - RULE-SET,nintendo_domain,全球代理
+
+  #06. 中国服务补遗 (在所有特定分类之后判定)
+  - RULE-SET,cn_domain,大陆直连
+  - RULE-SET,cn_ip,大陆直连
+
+  #07. 地理位置判断（兜底国外流量）
+  - RULE-SET,geolocation-!cn,全球代理
+
+  #07. 最终兜底
+  - MATCH,全球代理
+
+rule-anchor:
+  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
+  class: &class {type: http, interval: 86400, behavior: classical, format: text}
+rule-providers: 
+  #01. 本地网络优先
+  private_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs"}
+  tailscale_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tailscale.mrs"}
+  
+  #02. 抖快书定位
+  douyin_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/douyin.mrs"}
+  kuaishou_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/kuaishou.mrs"}
+  xiaohongshu_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/xiaohongshu.mrs"}
+
+  #03. 中国服务直连
+  cn_ip: {!!merge <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"}
+  cn_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"}
+  
+  #04. 使用分类规则
+  #Apple
+  apple-intelligence_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/refs/heads/main/rule/apple-intelligence.list"}
+  applecn_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs"}
+  apple_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs"}
+  #国内应用
+  115_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/115.mrs"}
+  okx_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/okx.mrs"}
+  binance_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/binance.mrs"}
+  bitget_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/main/rule/bitget.list"}
+  bybit_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bybit.mrs"}
+  sumsub_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/main/rule/sumsub.list"}
+  jianguoyun_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/JianGuoYun/JianGuoYun.yaml", format: yaml}
+  bilibili_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bilibili.mrs"}
+  XPTV_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/fangkuia/XPTV/refs/heads/main/X/clash.yaml", format: yaml}
+  #Microsoft
+  onedrive_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs"}
+  microsoft_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs"}
+  copilot_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github-copilot.mrs"}
+  #Spotify
+  spotify_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/spotify.mrs"}
+  #Google
+  GoogleVoice_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/main/rule/GoogleVoice.list"}
+  youtube_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.mrs"}
+  google_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs"}
+  google_ip: {!!merge <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs"}
+  #Meta
+  meta_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/meta.mrs"}
+  #Adobe
+  adobe_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/adobe.mrs"}
+  #国外AI
+  openai_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/openai.mrs"}
+  anthropic_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/anthropic.mrs"}
+  perplexity_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/perplexity.mrs"}
+  #国外影视
+  disney+_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/disney.mrs"}
+  netflix_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.mrs"}
+  netflix_ip: {!!merge <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/netflix.mrs"}
+  #TMDB
+  tmdb_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tmdb.mrs"}
+  #国外合集
+  tiktok_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tiktok.mrs"}
+  speedtest_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ookla-speedtest.mrs"}
+  telegram_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs"}
+  telegram_ip: {!!merge <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/telegram.mrs"}
+  paypal_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/paypal.mrs"}
+  x_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/x.mrs"}
+  ultramobile_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/main/rule/ultramobile.list"}
+  discord_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/discord.mrs"}
+  civitai_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Civitai/Civitai.yaml", format: yaml}
+  duolingo_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/duolingo.mrs"}
+  pinterest_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/pinterest.mrs"}
+  pikpak_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/pikpak.mrs"}
+  notion_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/notion.mrs"}
+  figma_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/figma.mrs"}
+  wise_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/wise.mrs"}
+  neverless_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/main/rule/neverless.list"}
+  n26_domain: {!!merge <<: *class, url: "https://raw.githubusercontent.com/MQmarijan/kiumo/main/rule/n26.list"}
+  schwab_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/schwab.mrs"}
+  #各大游戏平台
+  rockstar_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/rockstar.mrs"}
+  epicgames_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/epicgames.mrs"}
+  origin_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/origin.mrs"}
+  sony_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/sony.mrs"}
+  steam_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.mrs"}
+  nintendo_domain: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/nintendo.mrs"}
+  
+  #05. 地理位置判断（兜底国外流量）
+  geolocation-!cn: {!!merge <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"}
