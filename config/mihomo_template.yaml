@@ -77,12 +77,14 @@ dns:
   ipv6: false
   respect-rules: true
   enhanced-mode: fake-ip
-  fake-ip-range: 28.0.0.1/8
+  fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
     - "rule-set:private_domain"
     - "rule-set:cn_domain"
     - "rule-set:tailscale_domain"
+    - "rule-set:microsoft_domain"
+    - "rule-set:onedrive_domain"
     - "localhost"
     - "+.lan"
     - "+.local"
@@ -118,6 +120,7 @@ filter-tw: &filter-tw "(?=.*(🇹🇼|台|TW|新北|彰化|Taiwan))^((?!(香港|
 filter-jp: &filter-jp "(?=.*(🇯🇵|日|JP|(?i)Japan))^((?!(香港|HK|Hong|🇭🇰|台湾|TW|Taiwan|🇹🇼|韩国|KR|Korea|🇰🇷|新加坡|坡|SG|Singapore|🇸🇬|美国|US|America|🇺🇸|尼日利亚|(?i)Nigeria|🇳🇬|加拿大|(?i)Canada|🇨🇦|多伦多|公告)).)*$"
 filter-sg: &filter-sg "(?=.*(🇸🇬|新加坡|SG|坡|狮城|Singapore))^((?!(香港|HK|Hong|🇭🇰|美国|US|America|🇺🇸|日本|JP|Japan|🇯🇵|韩国|KR|Korea|🇰🇷|台湾|TW|Taiwan|🇹🇼|马来西亚|(?i)Malaysia|MY|吉隆坡|公告)).)*$"
 filter-us: &filter-us "(?=.*(🇺🇸|美|US|(?i)States|America))^((?!(香港|HK|Hong|🇭🇰|台湾|TW|Taiwan|🇹🇼|日本|JP|Japan|🇯🇵|韩国|KR|Korea|🇰🇷|新加坡|坡|SG|Singapore|🇸🇬|多哥|(?i)Togo|TG|洛美|公告)).)*$"
+filter-us-home: &filter-us-home "(?=.*(🇺🇸|美|US|(?i)States|America))(?=.*悦)^((?!(香港|HK|Hong|🇭🇰|台湾|TW|Taiwan|🇹🇼|日本|JP|Japan|🇯🇵|韩国|KR|Korea|🇰🇷|新加坡|坡|SG|Singapore|🇸🇬|多哥|(?i)Togo|TG|洛美|公告)).)*$"
 
 # 常用出站优先级列表别名
 x-apple-first:  &apple-first  [美国策略, 日本策略, 台湾策略, 下载专用, DIRECT]
@@ -156,7 +159,7 @@ proxy-groups:
   - {name: 台湾策略, type: select, proxies: [台湾自动, 台湾散列, 台湾轮询], include-all: true, filter: *filter-tw, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Taiwan.png}
   - {name: 日本策略, type: select, proxies: [日本自动, 日本散列, 日本轮询], include-all: true, filter: *filter-jp, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png}
   - {name: 狮城策略, type: select, proxies: [狮城自动, 狮城散列, 狮城轮询], include-all: true, filter: *filter-sg, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png}
-  - {name: 美国策略, type: select, proxies: [美国自动, 美国散列, 美国轮询], include-all: true, filter: *filter-us, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png}
+  - {name: 美国策略, type: select, proxies: [美国自动, 美国家宽, 美国散列, 美国轮询], include-all: true, filter: *filter-us, icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png}
 
   #自动测速组（隐藏，作为底层引擎）
   - {name: 香港自动, <<: *BaseUT, include-all: true, filter: *filter-hk}
@@ -164,6 +167,7 @@ proxy-groups:
   - {name: 日本自动, <<: *BaseUT, include-all: true, filter: *filter-jp}
   - {name: 狮城自动, <<: *BaseUT, include-all: true, filter: *filter-sg}
   - {name: 美国自动, <<: *BaseUT, include-all: true, filter: *filter-us}
+  - {name: 美国家宽, <<: *BaseUT, include-all: true, filter: *filter-us-home}
 
   #负载均衡-散列（隐藏，目的地固定节点，推荐）
   - {name: 香港散列, <<: *BaseCH, include-all: true, filter: *filter-hk}
@@ -203,6 +207,27 @@ rules:
   - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
   - IP-CIDR6,fd7a:115c:a1e0::/48,DIRECT,no-resolve
 
+  #01-1. 香港银行直连（须位于海外 QUIC 拦截之前）
+  - DOMAIN-SUFFIX,za.group,DIRECT
+  - DOMAIN-SUFFIX,zaticdn.com,DIRECT
+  - DOMAIN-SUFFIX,hsbc.com.hk,DIRECT
+  - DOMAIN-SUFFIX,bochk.com,DIRECT
+
+  #01-2. 微信核心服务直连（须位于海外 QUIC 拦截之前）
+  - DOMAIN-SUFFIX,weixin.qq.com,DIRECT
+  - DOMAIN-SUFFIX,wx.qq.com,DIRECT
+  - DOMAIN-SUFFIX,servicewechat.com,DIRECT
+  - DOMAIN-SUFFIX,wechat.com,DIRECT
+  - DOMAIN-SUFFIX,weixin.com,DIRECT
+  - DOMAIN-SUFFIX,wxgateway.com,DIRECT
+  - DOMAIN-SUFFIX,wxcloudrun.com,DIRECT
+  - DOMAIN-SUFFIX,wxlivecdn.com,DIRECT
+  - DOMAIN-SUFFIX,qpic.cn,DIRECT
+  - DOMAIN-SUFFIX,qlogo.cn,DIRECT
+  - DOMAIN-SUFFIX,gtimg.com,DIRECT
+  - DOMAIN-SUFFIX,tenpay.com,DIRECT
+  - DOMAIN-SUFFIX,wechatpay.cn,DIRECT
+
   #01-1. 进阶安全防护 (屏蔽海外 QUIC 流量，强制回退 TCP 提升稳定性)
   - AND,((DST-PORT,443),(NETWORK,UDP),(NOT,((GEOIP,CN,no-resolve)))),REJECT
 
@@ -221,6 +246,7 @@ rules:
   - DOMAIN,api.segment.io,美国策略
   - DOMAIN-SUFFIX,launchdarkly.com,美国策略
   - DOMAIN-SUFFIX,diabrowser.engineering,美国策略
+  - DOMAIN-SUFFIX,diabrowser.com,美国策略
   #Midjourney
   - DOMAIN-SUFFIX,midjourney.com,人工智能
   #martini
